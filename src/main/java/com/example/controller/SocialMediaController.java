@@ -1,10 +1,16 @@
 package com.example.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -109,5 +115,32 @@ public class SocialMediaController {
             return ResponseEntity.status(400).body("Client Error" + e.getMessage());
         } // end catch block
     } // end addMessage() handler
+
+    @GetMapping("/messages")
+    public ResponseEntity getAllMessages() {
+        return ResponseEntity.status(200).body(messageService.getAllMessages());
+        // if the database is empty then `messageService.getAllMessages()` will return an empty List (not null).
+        // Thus it is safe to feed the result of `messageService.getAllMessages()` into the body of the ResponseEntity
+    } // end getAllMessages() handler
+
+    @GetMapping("messages/{messageId}")
+    public ResponseEntity getMessageById(@PathVariable("messageId") Integer messageId) {
+        Message found = messageService.getMessageById(messageId);
+
+        if (found == null) {
+            return ResponseEntity.status(200).body("");   
+        } // end if statement 
+        
+        return ResponseEntity.status(200).body(found);
+    } // end getMessageById handler
+
+    @DeleteMapping("messages/{messageId}") 
+    public ResponseEntity deleteMessageById(@PathVariable("messageId") Integer messageId) {
+        if (messageService.deleteMessageById(messageId)) { // if the delete happens successfully then return 200 and 1
+            return ResponseEntity.status(200).body("1");
+        } // end if statement
+
+        return ResponseEntity.status(200).body(""); // if the delete does not happen return 200 and nothing
+    }
 
 }
