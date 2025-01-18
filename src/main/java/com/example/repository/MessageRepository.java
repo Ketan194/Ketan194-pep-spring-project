@@ -10,5 +10,5 @@ import com.example.entity.Account;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer>{
-    List<Message> findMessagesByPostedBy(Integer id);
+    List<Message> findMessagesByPostedBy(Integer id); // A function that can find a list of messages based on who posted it
 }

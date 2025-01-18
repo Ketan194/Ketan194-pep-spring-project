@@ -8,5 +8,5 @@ import com.example.entity.Account;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    Account findAccountByUsername(String username);
+    Account findAccountByUsername(String username); // A function that is able to find an account based on its username.
 }

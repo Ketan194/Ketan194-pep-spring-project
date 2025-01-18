@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.entity.Message;
-import com.example.entity.Account;
 import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 
@@ -22,6 +21,17 @@ public class MessageService {
         this.messageRepository = messageRepository;
     } // end constructor
 
+    /**
+     * Adds a message to the message database. 
+     * 
+     * The message can only be added if the messageText is not blank, is not over 255 characters, and postedBy refers to a real,
+     *      existing user.
+     * If the above conditions are met then the message can be added to the user. 
+     * 
+     * @param message The message that needs to be added to the database. 
+     * @return The message that was added to the database. 
+     * @throws Exception
+     */
     public Message addMessage(Message message) throws Exception {
         if (message.getMessageText().isEmpty() || message.getMessageText().length() > 255) {
             // check if message text if empty or longer than 225 characters long
@@ -33,7 +43,7 @@ public class MessageService {
         } // end if statement
 
         try {
-            return messageRepository.save(message);
+            return messageRepository.save(message); // try adding the message to the database
         } // end try block
         catch (Exception e) {
             throw e;
@@ -81,24 +91,40 @@ public class MessageService {
         return false; // if there is no matching message in the database return false
     } // end deleteMessageById()
 
+    /**
+     * Will edit a message in the database. 
+     * 
+     * The message text can only be changed if the new message text if is not empty and not longer than 255 characters long. 
+     * 
+     * @param id The id of the message that needs to be changed. 
+     * @param text The text that needs to replace the old message. 
+     * @return True if the message was successfully changed and false otherwise.
+     */
     public boolean patchMessage(Integer id, String text) {
-        // System.out.println(text);
-        if (text.isEmpty() || text.length() > 255) {
-            return false;
-        } // end if statement 
+        // System.out.println("Text value = ----------" + text + "--------  Id = " + id); // used for debugging
 
-        Optional<Message> message = messageRepository.findById(id);
+        if (text.isEmpty() || text.length() > 255) { // check if text is empty or longer than 255 characters long. 
+            return false; // if text is bad return false
+        } // end if statement
+
+        Optional<Message> message = messageRepository.findById(id); // find message based on its id
 
         if (!message.isPresent()) { // if nothing is present in the message optional then return null.
             return false;
         } // end if statement 
 
-        message.get().setMessageText(text);
-        messageRepository.save(message.get());
-        return true;
+        message.get().setMessageText(text); // change the text in the message
+        messageRepository.save(message.get()); // add the message to the database
+        return true; // if the message was added then return true
     } // end patchMesage()
 
+    /**
+     * Get a list of messages that were posted by a single user. 
+     * 
+     * @param id The id of the account whose messages need to be found. 
+     * @return The List of messages that were posted by the user. 
+     */
     public List<Message> getByAccountId(Integer id) {
-        return messageRepository.findMessagesByPostedBy(id);
-    }
-}
+        return messageRepository.findMessagesByPostedBy(id); // return the list of messages posted by the user
+    } // end getByAccountId()
+} // end MessageService Class

@@ -1,6 +1,5 @@
 package com.example.service;
 
-import org.hibernate.jdbc.Expectations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,22 @@ public class AccountService {
         this.accountRepository = accountRepository;
     } // end constructor
 
+    /**
+     * Adds an Account to the account database. 
+     * 
+     * The account can only be added if the username is not empty, the password is at least 4 characters long, and 
+     *      the username is not already in use. 
+     * If the above conditions are met then the account can be added. 
+     * 
+     * @param account The Account that needs to be added to the database.
+     * @return The account that was added to the database. 
+     * @throws Exception
+     */
     public Account register(Account account) throws Exception {
+        if (account.getUsername().isEmpty() || account.getPassword().length() < 4) {
+            // check to make sure the username is not empty and the password is longer than 4 characters. 
+            return null;
+        } // end if statement 
         Account found = accountRepository.findAccountByUsername(account.getUsername());
 
         if (found != null) { // check if an account exists with a matching username
@@ -31,6 +45,12 @@ public class AccountService {
         } // end catch block
     } // end register()
 
+    /**
+     * Logs a user into their account. 
+     * 
+     * @param account The account that is trying to log in. 
+     * @return
+     */
     public Account login(Account account) {
         Account found = accountRepository.findAccountByUsername(account.getUsername());
         
@@ -44,5 +64,5 @@ public class AccountService {
         } // end if statement
         
         return null; // return null if the password does not match
-    }
-}
+    } // end login()
+} // end AccountService Class

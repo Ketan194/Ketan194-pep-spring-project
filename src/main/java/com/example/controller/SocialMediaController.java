@@ -1,48 +1,30 @@
 package com.example.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.entity.Account;
 import com.example.entity.Message;
-import com.example.repository.AccountRepository;
-import com.example.repository.MessageRepository;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 
-/**
- * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
- * found in readme.md as well as the test cases. You be required to use the @GET/POST/PUT/DELETE/etc Mapping annotations
- * where applicable as well as the @ResponseBody and @PathVariable annotations. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
- */
 @RestController
 public class SocialMediaController {
 
     private final AccountService accountService;
     private final MessageService messageService;
-    private final AccountRepository accountRepository;
-    private final MessageRepository messageRepository;
 
     @Autowired
-    public SocialMediaController(AccountService accountService, MessageService messageService, 
-                                 AccountRepository accountRepository, MessageRepository messageRepository) {
+    public SocialMediaController(AccountService accountService, MessageService messageService) {
         this.accountService = accountService;
         this.messageService = messageService;
-        this.accountRepository = accountRepository;
-        this.messageRepository = messageRepository;
     } // end constructor
 
     /**
@@ -100,6 +82,14 @@ public class SocialMediaController {
         } // end else statement 
     } // end login handler 
 
+    /**
+     * A handler for a POST request made to '/messages'
+     * 
+     * This handler recives a Message that needs to be added to the message database. 
+     * 
+     * @param message Message that needs to be added to database.
+     * @return The message that was added to the database along with 200 status code, or status code 400 if message wasn't added. 
+     */
     @PostMapping("/messages")
     public ResponseEntity addMessage(@RequestBody Message message) {
         try {
@@ -117,6 +107,13 @@ public class SocialMediaController {
         } // end catch block
     } // end addMessage() handler
 
+    /**
+     * A handler for a GET request made to '/messages'.
+     * 
+     * This handler will return a List of Messages that includes all the messages that are in the database. 
+     * 
+     * @return A List of Messages from the database along with a status code of 200.
+     */
     @GetMapping("/messages")
     public ResponseEntity getAllMessages() {
         return ResponseEntity.status(200).body(messageService.getAllMessages());
@@ -124,6 +121,14 @@ public class SocialMediaController {
         // Thus it is safe to feed the result of `messageService.getAllMessages()` into the body of the ResponseEntity
     } // end getAllMessages() handler
 
+    /**
+     * A handler for a GET request made to '/messages/{messageId}'.
+     * 
+     * The handler will get a single message based on its message_id which is included in the path. 
+     * 
+     * @param messageId The message id to look for in the database. 
+     * @return A ResponseEntity contianing the found message along with staus code 200. 
+     */
     @GetMapping("messages/{messageId}")
     public ResponseEntity getMessageById(@PathVariable("messageId") Integer messageId) {
         Message found = messageService.getMessageById(messageId);
@@ -135,6 +140,14 @@ public class SocialMediaController {
         return ResponseEntity.status(200).body(found);
     } // end getMessageById handler
 
+    /**
+     * A handler for a DELETE request made to '/messages/{messageId}'.
+     * 
+     * The handler will delete a message from the database based on its message_id.
+     * 
+     * @param messageId The id of the message that needs to be deleted.
+     * @return A ResponseEntity with staus code 200 along with how many rows were effected by the request. 
+     */
     @DeleteMapping("messages/{messageId}") 
     public ResponseEntity deleteMessageById(@PathVariable("messageId") Integer messageId) {
         if (messageService.deleteMessageById(messageId)) { // if the delete happens successfully then return 200 and 1
@@ -144,18 +157,37 @@ public class SocialMediaController {
         return ResponseEntity.status(200).body(""); // if the delete does not happen return 200 and nothing
     } // end deleteMessageById handler
 
+    /**
+     * A handler for a PATCH request made to 'messages/{messageId}'.
+     * 
+     * The hadler will replace the message_text for a message that is found using its message id.
+     * 
+     * @param id The id of the message that needs to be changed.
+     * @param messageText The text that needs to replace the old text of the message. 
+     * @return A ResponseEntity with status code 200 along with how many rows were effected by the request, or 
+     *      status code 400 if there was no effect.
+     */
     @PatchMapping("/messages/{messageId}")
     public ResponseEntity patchMessage(@PathVariable("messageId") Integer id, @RequestBody String messageText) {
-        if (messageService.patchMessage(id, messageText)) { // if the patch happens successfully then return 200 and 1
+        String text = messageText.substring(17, messageText.length() - 2);
+
+        if (messageService.patchMessage(id, text)) { // if the patch happens successfully then return 200 and 1
             return ResponseEntity.status(200).body("1");
         } // end if statement
 
         return ResponseEntity.status(400).body("Client Error"); // if the patch does not happen return 200 and nothing
-    }
+    } // end patchMessage handler 
 
+    /**
+     * A handler for a GET request made to '/accounts/{accountId}/messages'.
+     * 
+     * Finds all the messages made by a user and returns them as a List of Messages.
+     * 
+     * @param id The id of the account whose messages need to be retived. 
+     * @return A List of Messages that were made by the user along with a status code of 200.
+     */
     @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity getByAccountId(@PathVariable("accountId") Integer id) {
         return ResponseEntity.status(200).body(messageService.getByAccountId(id));
-    }
-
-}
+    } // end getByAccountId handler
+} // end SocialMediaController Class
