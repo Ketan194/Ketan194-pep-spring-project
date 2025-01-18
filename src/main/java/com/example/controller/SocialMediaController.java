@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -141,6 +142,20 @@ public class SocialMediaController {
         } // end if statement
 
         return ResponseEntity.status(200).body(""); // if the delete does not happen return 200 and nothing
+    } // end deleteMessageById handler
+
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity patchMessage(@PathVariable("messageId") Integer id, @RequestBody String messageText) {
+        if (messageService.patchMessage(id, messageText)) { // if the patch happens successfully then return 200 and 1
+            return ResponseEntity.status(200).body("1");
+        } // end if statement
+
+        return ResponseEntity.status(400).body("Client Error"); // if the patch does not happen return 200 and nothing
+    }
+
+    @GetMapping("/accounts/{accountId}/messages")
+    public ResponseEntity getByAccountId(@PathVariable("accountId") Integer id) {
+        return ResponseEntity.status(200).body(messageService.getByAccountId(id));
     }
 
 }

@@ -80,4 +80,25 @@ public class MessageService {
 
         return false; // if there is no matching message in the database return false
     } // end deleteMessageById()
+
+    public boolean patchMessage(Integer id, String text) {
+        // System.out.println(text);
+        if (text.isEmpty() || text.length() > 255) {
+            return false;
+        } // end if statement 
+
+        Optional<Message> message = messageRepository.findById(id);
+
+        if (!message.isPresent()) { // if nothing is present in the message optional then return null.
+            return false;
+        } // end if statement 
+
+        message.get().setMessageText(text);
+        messageRepository.save(message.get());
+        return true;
+    } // end patchMesage()
+
+    public List<Message> getByAccountId(Integer id) {
+        return messageRepository.findMessagesByPostedBy(id);
+    }
 }
